@@ -41,6 +41,11 @@ function filterByQuery(query, animalsArray) {
   return filteredResults;
 }
 
+function findById(id, animalsArray) {
+  const result = animalsArray.filter(animal => animal.id === id)[0];
+  return result;
+}
+
 app.get('/api/animals', (req, res) => { // get() method requires two arguments. The first is a string that describes the route the client will have to fetch from. The second is a callback function that will execute every time that route is accessed with a GET request.
   let results = animals;
   if (req.query) {
@@ -48,6 +53,16 @@ app.get('/api/animals', (req, res) => { // get() method requires two arguments. 
   }
   res.json(results); //we are using the send() method from the res parameter (short for response) to send the string Hello! to our client. - this was changed in the next step of module |
 });
+
+app.get('/api/animals/:id', (req, res) => {
+  const result = findById(req.params.id, animals); //param always follows a get route
+  if (result) {
+    res.json(result);
+  } else {
+    res.send(404); //results in a 404 error if the parameter does not exist
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`API server now on port ${PORT}!`); //the port is to classroom/building like a web address is to the copllege campus
