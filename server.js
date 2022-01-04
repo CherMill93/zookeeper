@@ -1,3 +1,6 @@
+const fs = require('fs');
+const path = require('path');
+
 const { json } = require('body-parser');
 const express = require('express') 
 const PORT = process.env.PORT || 3001; //allows the port # to automatically set to the best option | Heroku requires 80 and this will allow it to be set to 80 rather than 3001 exclusively
@@ -52,7 +55,36 @@ function findById(id, animalsArray) {
   return result;
 }
 
-app.get('/api/animals', (req, res) => { // get() method requires two arguments. The first is a string that describes the route the client will have to fetch from. The second is a callback function that will execute every time that route is accessed with a GET request.
+function createNewAnimal(body, animalsArray) { //this function accepts POST route's req.body to the array. thereby allowing us to add an animal
+  // console.log(body);
+  // our function's main code will go here!
+  const animal = body;
+  animalsArray.push(animal);
+  fs.writeFileSync(
+    path.join(__dirname, './data/animals.json'),
+    JSON.stringify({ animals: animalsArray }, null, 2)
+  );
+  // return finished code to post route for response
+  return animal;
+}
+
+function validateAnimal(animal) {
+  if (!animal.name || typeof animal.name !== 'string') {
+    return false;
+  }
+  if (!animal.species || typeof animal.species !== 'string') {
+    return false;
+  }
+  if (!animal.diet || typeof animal.diet !== 'string') {
+    return false;
+  }
+  if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+    return false;
+  }
+  return true;
+}
+
+app.get('/api/animals', (req, res) => { // get() method requires two arguments. (request, response) The first is a string that describes the route the client will have to fetch from. The second is a callback function that will execute every time that route is accessed with a GET request.
   let results = animals;
   if (req.query) {
     results = filterByQuery(req.query, results);
@@ -71,8 +103,21 @@ app.get('/api/animals/:id', (req, res) => {
 
 app.post('/api/animals', (req, res) => {
   // req.body is where our incoming content will be
-  console.log(req.body);
-  res.json(req.body);
+
+  // set id based on what the next index of the array will be
+  req.body.id = animals.length.toString();
+
+  // if any data in req.body is incorrect, send 400 error back
+  if (!validateAnimal(req.body)) {
+    res.status(400).send('The animal is not properly formatted.'); //response method to relay a message to the client | 400 means that it's a user error
+  } else {
+    const animal = createNewAnimal(req.body, animals);
+    res.json(animal);
+  }
+  // add animal to json file and animals array in this function
+  // const animal = createNewAnimal(req.body, animals);
+
+  // res.json(animal);
 });
 
 app.listen(PORT, () => {
