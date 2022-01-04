@@ -1,6 +1,12 @@
+const { json } = require('body-parser');
 const express = require('express') 
 const PORT = process.env.PORT || 3001; //allows the port # to automatically set to the best option | Heroku requires 80 and this will allow it to be set to 80 rather than 3001 exclusively
 const app = express(); //starter code to use express | We assign express() to the app variable so that we can later chain on methods to the Express.js server.
+
+//parse incoming string or array data
+app.use(express.urlencoded({ extended: true})); //middleware function | urlencoded - 
+// parse incoming JSON  data
+app.use(express.json());
 
 function filterByQuery(query, animalsArray) {
   let personalityTraitsArray = [];
