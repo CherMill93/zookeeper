@@ -10,6 +10,7 @@ const app = express(); //starter code to use express | We assign express() to th
 app.use(express.urlencoded({ extended: true})); //middleware function | urlencoded - 
 // parse incoming JSON  data
 app.use(express.json());
+app.use(express.static('zookeepr-public')); //express.static middleware that directs to the specified filepath
 
 function filterByQuery(query, animalsArray) {
   let personalityTraitsArray = [];
@@ -118,6 +119,10 @@ app.post('/api/animals', (req, res) => {
   // const animal = createNewAnimal(req.body, animals);
 
   // res.json(animal);
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, './zookeepr-public/index.html'));
 });
 
 app.listen(PORT, () => {
